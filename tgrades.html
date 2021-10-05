@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Teacher</title>
+	</head>
+<style>
+ body {
+  font-family: "Times New Roman";
+  font-size:16px;
+}
+.grade table, .grade th, .grade td {
+  border: 1px solid black;
+  text-align:center;
+  table-layout:fixed;
+  width:25%;
+}
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: white;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border-right: 3px solid black;
+  background-color: #E73131;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight:bold;
+  color: black;
+  border:1px solid black;
+  display: inline-block;
+  width: 207.2px;
+  transition: 0.3s;
+  background-color: white;
+}
+
+.sidenav a:hover {
+  color:#E73131;
+  border: 1px solid #E73131;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+.button1 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 13px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:9%;
+  height: 22px;
+  font-weight:bold;
+}
+.button2 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 14px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:13%;
+  height: 35px;
+  font-weight:bold;
+}
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+</style>
+	<body style="margin:0;background-color:#E73131;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;
+    <div id="mySidenav" class="sidenav" style="padding-top:78px">
+        <a href="welcometeacher.html"><br>Home Page<br><br></a>
+        <a href="addquestions.html"><br>Add Questions<br><br></a>
+        <a href="maketest.html"><br>Create Test<br><br></a>
+        <a href="postgrades.html"><br>Post Grades<br><br></a>
+      </div>
+      <div id="main" style="display:inline;">
+        <span style="font-size:30px;cursor:pointer" onclick="Nav()">&#9776;</span>
+      </div>
+      <div style="display:inline;float:right;padding-top:13px;" >
+      <div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div> &emsp;
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()">&emsp;&ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br><br>
+    <div style="display:inline">
+      <table align="center" style="background-color:white;border:3px solid black;width:75%;overflow:auto;">
+        <tr><th style="font-size:20px;"> <br> Review Grades </th></tr>
+        <tr>
+          <td style="text-align:center;"><br>
+            Exam Name: &nbsp;
+            <select id="exam">
+            </select> &emsp; &emsp;
+            Student ID:
+            <select id="student">
+            </select> &emsp;
+            <button class="button1 button" onclick="getGrades()">Get Grades</button><br><br>
+            <div id="display"></div><br>
+            <button id="submitbutton" class="button2 button" onclick="submitEdits()" style="visibility:hidden;">Submit Results</button><br><br>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <script>
+      var check = 0;
+      function Nav() {
+        if (check == 0)
+        {document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        check = 1;}
+        else
+        {document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.marginLeft= "0";
+        check = 0;}
+      }
+      function requestDD(str,dd){
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          DDL(JSON.parse(this.responseText),dd);
+        }
+      };
+      xhttp.open("POST", "querytocontroller.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("query="+str);}
+      function DDL(options,dd){
+        var select = document.getElementById(dd); 
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+      }}
+      requestDD("getexamnames","exam");
+      requestDD("getstudentids","student");
+      var length = 0;
+      var questionids = [];
+      var comment = "";
+      var functionname = [];
+      var colon = [];
+      var tc1 = [];
+      var tc2 = [];
+      var tc3 = [];
+      var tc4 = [];
+      var c = [];
+      var constr = [];
+      var student = "";
+      var exam = "";
+      var agrades = [];
+      var numtestcase = [];
+      var tcnum = [];
+      var teachergrade =[];
+      var points = [];
+      var val = 0;
+      function getGrades()
+      {  
+          agrades = [];
+          c = [];
+          numtestcase = [];
+          points = [];
+          document.getElementById("display").innerHTML = "";
+          var xhttp = new XMLHttpRequest();
+          var count = 0;
+          questionid = [];
+          document.getElementById("submitbutton").style.visibility = "visible";
+          var udd = document.getElementById("student");
+          var username = udd.options[udd.selectedIndex].textContent;
+          student = username;
+          var edd = document.getElementById("exam");
+          var examname = edd.options[edd.selectedIndex].textContent;
+          exam = examname;
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              myObjLength = JSON.parse(this.responseText).length;
+              length = myObjLength;
+              while(count < myObjLength){
+              points.push(JSON.parse(this.responseText)[count].questionpoints);
+              var ans = decodeURIComponent((JSON.parse(this.responseText)[count].answer).split('+').join("%20"));
+              questionids.push(JSON.parse(this.responseText)[count].questionid);
+              numtestcase.push(JSON.parse(this.responseText)[count].testcasenum);
+              if(JSON.parse(this.responseText)[count].const == "none"){
+                if(JSON.parse(this.responseText)[count].testcasenum == '2')
+                {
+                  document.getElementById("display").innerHTML += "<div style='margin: 0px 10px 0px'><br><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): </b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Student Answer: &nbsp;</b>" + ans + "</div><br><table align='center' class='grade'><th>Category</th><th>AutoGrade</th><th>New Score</th><tr><td><br>Function Name<br><br></td><td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"</td><td><div class='rgrade'>"+JSON.parse(this.responseText)[count].autograde+"</div></td></tr></table><br> <b>Comments:</b> <input type='text' class='comment' style='width:30%;height:50px;'><br><br><hr>";
+                }
+                else if (JSON.parse(this.responseText)[count].testcasenum == '3')
+                { 
+                  document.getElementById("display").innerHTML += "<div style='margin: 0px 100px 0px'><br><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): </b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Student Answer: &nbsp;</b>" + ans + "</div><br><table align='center' class='grade'><th>Category</th><th>AutoGrade</th><th>New Score</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b> </td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"</td><td><div class='rgrade'>"+JSON.parse(this.responseText)[count].autograde+"</div></td></tr></table><br> <b>Comments:</b> <input type='text' class='comment' style='width:30%;height:50px;'><br><br><hr>";
+                }
+                else
+                {
+                  document.getElementById("display").innerHTML += "<div style='margin: 0px 100px 0px'><br><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): </b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Student Answer: &nbsp;</b>" + ans + "</div><br><table align='center' class='grade'><th>Category</th><th>AutoGrade</th><th>New Score</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 4: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test4q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test4a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test4sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test4score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"</td><td><div class='rgrade'>"+JSON.parse(this.responseText)[count].autograde+"</div></td></tr></table><br> <b>Comments:</b> <input type='text' class='comment' style='width:30%;height:50px;'><br><br><hr>";
+                }}
+              else{
+                if(JSON.parse(this.responseText)[count].testcasenum == '2')
+                {
+                  document.getElementById("display").innerHTML += "<div style='margin: 0px 100px 0px'><br><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): </b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Student Answer: &nbsp;</b>" + ans + "</div><br><table align='center' class='grade'><th>Category</th><th>AutoGrade</th><th>New Score</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Constraint(<b>"+JSON.parse(this.responseText)[count].const+"</b>) <br><br></td><td>"+JSON.parse(this.responseText)[count].constraintscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"</td><td><div class='rgrade'>"+JSON.parse(this.responseText)[count].autograde+"</div></td></tr></table><br> <b>Comments:</b> <input type='text' class='comment' style='width:30%;height:50px;'><br><br><hr>";
+                }
+                else if (JSON.parse(this.responseText)[count].testcasenum == '3')
+                { 
+                  document.getElementById("display").innerHTML += "<div style='margin: 0px 100px 0px'><br><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): </b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Student Answer: &nbsp;</b>" + ans + "</div><br><table align='center' class='grade'><th>Category</th><th>AutoGrade</th><th>New Score</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Constraint (<b>"+JSON.parse(this.responseText)[count].const+"</b>)<br><br></td><td>"+JSON.parse(this.responseText)[count].constraintscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"</td><td><div class='rgrade'>"+JSON.parse(this.responseText)[count].autograde+"</div></td></tr></table><br> <b>Comments:</b> <input type='text' class='comment' style='width:30%;height:50px;'><br><br><hr>";
+                }
+                else
+                {
+                  document.getElementById("display").innerHTML += "<div style='margin: 0px 100px 0px'><br><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): </b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Student Answer: &nbsp;</b>" + ans + "</div><br><table align='center' class='grade'><th>Category</th><th>AutoGrade</th><th>New Score</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td> Test Case 4: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test4q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test4a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test4sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test4score+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Constraint (<b>"+JSON.parse(this.responseText)[count].const+"</b>)<br><br></td><td>"+JSON.parse(this.responseText)[count].constraintscore+"</td><td><input type='number' class='newscore' oninput='changeGrade()'></td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"</td><td><div class='rgrade'>"+JSON.parse(this.responseText)[count].autograde+"</div></td></tr></table><br> <b>Comments:</b> <input type='text' class='comment' style='width:30%;height:50px;'><br><br><hr>";
+                }
+              }
+              c.push(JSON.parse(this.responseText)[count].const);
+              agrades.push(JSON.parse(this.responseText)[count].functionnamescore);
+              agrades.push(JSON.parse(this.responseText)[count].colonscore);
+              agrades.push(JSON.parse(this.responseText)[count].test1score);
+              agrades.push(JSON.parse(this.responseText)[count].test2score);
+              if(JSON.parse(this.responseText)[count].test3score == null)
+                agrades.push(0);
+              else
+                agrades.push(JSON.parse(this.responseText)[count].test3score);
+              if(JSON.parse(this.responseText)[count].test4score == null)
+                agrades.push(0);
+              else
+                agrades.push(JSON.parse(this.responseText)[count].test4score);
+              agrades.push(JSON.parse(this.responseText)[count].constraintscore);
+              count++;}
+            }
+          };
+          xhttp.open("POST", "tgradestocontroller.php", true);
+          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          xhttp.send("examname="+examname+"&username="+username);
+      }
+      function changeGrade(){
+        var looping = 0;
+        var count = 0;
+        while (looping < length){
+          var tcnum = numtestcase[looping];
+          var sum = parseInt(points[looping]);
+         if (document.getElementsByClassName("newscore")[count].value == '')
+            sum += parseInt(agrades[(looping*7)]);
+          else
+            sum += parseInt(document.getElementsByClassName("newscore")[count].value);
+          if (document.getElementsByClassName("newscore")[count+1].value == '')
+            sum += parseInt(agrades[(looping*7)+1]);
+          else
+            sum += parseInt(document.getElementsByClassName("newscore")[count+1].value);
+          if (document.getElementsByClassName("newscore")[count+2].value == '')
+            sum += parseInt(agrades[(looping*7)+2]);
+          else
+            sum += parseInt(document.getElementsByClassName("newscore")[count+2].value);
+          if (document.getElementsByClassName("newscore")[count+3].value == '')
+            sum += parseInt(agrades[(looping*7)+3]);
+          else
+            sum += parseInt(document.getElementsByClassName("newscore")[count+3].value);
+          if(tcnum == 2){
+            count+=4;
+            if (c[looping] != "none")
+            {
+              if (document.getElementsByClassName("newscore")[count].value == '')
+                sum += parseInt(agrades[(looping*7)+6]);
+              else
+                sum += parseInt(document.getElementsByClassName("newscore")[count].value);
+                count+=1;
+            }}
+          else if (tcnum == 3){
+            if (document.getElementsByClassName("newscore")[count+4].value == '')
+              sum += parseInt(agrades[(looping*7)+4]);
+            else
+              sum += parseInt(document.getElementsByClassName("newscore")[count+4].value);
+              count+=5;
+              if (c[looping] != "none")
+              {
+                if (document.getElementsByClassName("newscore")[count].value == '')
+                  sum += parseInt(agrades[(looping*7)+6]);
+                else
+                  sum += parseInt(document.getElementsByClassName("newscore")[count].value);
+                  count+=1;
+            }}
+          else{
+            if (document.getElementsByClassName("newscore")[count+4].value == '')
+              {sum += parseInt(agrades[(looping*7)+4]);}
+            else
+              sum += parseInt(document.getElementsByClassName("newscore")[count+4].value);
+            if (document.getElementsByClassName("newscore")[count+5].value == '')
+              sum += parseInt(agrades[(looping*7)+5]);
+            else
+              sum += parseInt(document.getElementsByClassName("newscore")[count+5].value);
+              count+=6;
+            if (c[looping] != "none")
+            {
+              if (document.getElementsByClassName("newscore")[count].value == '')
+                sum += parseInt(agrades[(looping*7)+6]);
+              else
+                sum += parseInt(document.getElementsByClassName("newscore")[count].value);
+                count+=1;
+            }}
+              document.getElementsByClassName("rgrade")[looping].innerHTML = sum;
+              looping++;}
+      }
+      function sendArrayData(looping,tcnum){
+        if (document.getElementsByClassName("newscore")[val].value == '')
+          functionname.push(agrades[(looping*7)]);
+        else
+          functionname.push(document.getElementsByClassName("newscore")[val].value);
+        if (document.getElementsByClassName("newscore")[val+1].value == '')
+          colon.push(agrades[(looping*7)+1]);
+        else
+          colon.push(document.getElementsByClassName("newscore")[val+1].value);
+        if (document.getElementsByClassName("newscore")[val+2].value == '')
+          tc1.push(agrades[(looping*7)+2]);
+        else
+          tc1.push(document.getElementsByClassName("newscore")[val+2].value);
+        if (document.getElementsByClassName("newscore")[val+3].value == '')
+          tc2.push(agrades[(looping*7)+3]);
+        else
+          tc2.push(document.getElementsByClassName("newscore")[val+3].value);
+        if(tcnum == 2){
+          tc3.push(0);
+          tc4.push(0);
+          val+=4;
+          if (c[looping] != "none")
+          {
+            if (document.getElementsByClassName("newscore")[val].value == '')
+              constr.push(agrades[(looping*7)+6]);
+            else
+              constr.push(document.getElementsByClassName("newscore")[val].value);
+              val+=1;
+          }
+          else
+            constr.push(0);}
+        else if (tcnum == 3){
+          if (document.getElementsByClassName("newscore")[val+4].value == '')
+            tc3.push(agrades[(looping*7)+4]);
+          else
+            tc3.push(document.getElementsByClassName("newscore")[val+4].value);
+            tc4.push(0);
+            val+=5;
+            if (c[looping] != "none")
+            {
+              if (document.getElementsByClassName("newscore")[val].value == '')
+                constr.push(agrades[(looping*7)+6]);
+              else
+                constr.push(document.getElementsByClassName("newscore")[val].value);
+                val+=1;
+            }
+            else
+              constr.push(0);}
+        else{
+          if (document.getElementsByClassName("newscore")[val+4].value == '')
+            {tc3.push(agrades[(looping*7)+4]);}
+          else
+            tc3.push(document.getElementsByClassName("newscore")[val+4].value);
+          if (document.getElementsByClassName("newscore")[val+5].value == '')
+            tc4.push(agrades[(looping*7)+5]);
+          else
+            tc4.push(document.getElementsByClassName("newscore")[val+5].value);
+            val+=6;
+          if (c[looping] != "none")
+          {
+            if (document.getElementsByClassName("newscore")[val].value == '')
+              constr.push(agrades[(looping*7)+6]);
+            else
+              constr.push(document.getElementsByClassName("newscore")[val].value);
+              val+=1;
+          }
+          else
+            constr.push(0);}
+        
+        teachergrade.push(parseInt(points[looping], 10) + parseInt(functionname[looping], 10) + parseInt(colon[looping], 10) + parseInt(tc1[looping], 10) + parseInt(tc2[looping], 10) + parseInt(tc3[looping], 10) + parseInt(tc4[looping], 10) + parseInt(constr[looping], 10));
+        
+      }
+      function submitEdits()
+      {
+        var xhttp = new XMLHttpRequest();
+        functionname = [];
+        tc1 = [];
+        tc2 = [];
+        tc3 = [];
+        tc4 = [];
+        colon = [];
+        constr = [];
+        comment = "";
+        tcnum = [];
+        teachergrade = [];
+        var looping = 0;
+        val = 0;
+        while (looping < length)
+        {  
+          sendArrayData(looping,numtestcase[looping]);
+          tcnum.push(numtestcase[looping]);
+          comment+=document.getElementsByClassName("comment")[looping].value+"@";
+          looping++;
+        }
+        xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("display").innerHTML += this.responseText;
+          }
+        };
+        xhttp.open("POST", "submitresulttocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("exam="+exam+"&student="+student+"&questionid="+questionids+"&functionnamec="+functionname+"&test1c="+tc1+"&test2c="+tc2+"&test3c="+tc3+"&test4c="+tc4+"&colon="+colon+"&constraint="+constr+"&comment="+escape(encodeURIComponent(comment))+"&testcasenum="+tcnum+"&teachergrade="+teachergrade); 
+        document.getElementById("submitbutton").style.visibility = "hidden";      
+        document.getElementById("display").innerHTML = "<br>Successfully Submitted Grades.";
+      }
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/maketest.html");
+        deleteCookie("username","/~tkp7/maketest.html");
+        deleteCookie("role","/~tkp7/addquestions.html");
+        deleteCookie("username","/~tkp7/addquestions.html");
+        deleteCookie("role","/~tkp7/postgrades.html");
+        deleteCookie("username","/~tkp7/postgrades.html");
+        deleteCookie("role","/~tkp7/welcometeacher");
+        deleteCookie("username","/~tkp7/welcometeacher");
+        location.href = 'display.html';
+      }
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      var role=getCookie("role");
+      if (role == "t") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        var x = document.getElementsByTagName("BODY")[0];
+        x.style.visibility = "visible";
+      }  
+    </script>
+	</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Student</title>
+	</head>
+  <style>
+ body {
+  font-family: "Times New Roman";
+  font-size:16px;
+}
+  .button1 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  margin: 4px 2px;
+  font-size:16px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:9%;
+  height: 30px;
+  font-weight:bold;
+}
+  .button2 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  margin: 4px 2px;
+  font-size:15px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:10%;
+  height: 30px;
+  font-weight:bold;
+}
+
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+  </style>
+	<body style="margin:0;background-color:#E73131;visibility:hidden;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;
+      <input type="submit" value="Get Grades" style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="location.href = 'sgrades.html';">&ensp;
+      <input type="submit" value="Home Page" style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="location.href = 'welcomestudent.html';">
+      <div style="display:inline;float:right;">
+      <div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div>&emsp;
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()"> &emsp; &ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br><br>
+    <center>
+    <div style="background-color:white;border:3px solid black;width:90%;">
+      <br>
+      <button class="button1 button" onclick="takeExam()">Take Exam</button>
+      <div id="demo"></div><br><br><br>
+      <div id="displayexam"></div><br><br>
+      <button id="submitexam" class="button2 button" onclick="submitExam()"  style="visibility:hidden;">Submit Exam</button><br><br>
+      <div id="showanswer"></div>
+    </div>
+    </center>
+    <script>
+      var length = 0;
+      var exam = "";
+      var student = "";
+      var questionids = [];
+      var points = [];
+      function tabbing(){
+        var textareas = document.getElementsByTagName('textarea');
+        var count = textareas.length;
+        for(var i=0;i<count;i++){
+            textareas[i].onkeydown = function(e){
+                if(e.keyCode==9 || e.which==9){
+                    e.preventDefault();
+                    var s = this.selectionStart;
+                    this.value = this.value.substring(0,this.selectionStart) + "\t" + this.value.substring(this.selectionEnd);
+                    this.selectionEnd = s+1;
+                }}}}
+      function takeExam()
+      {
+        document.getElementById("displayexam").innerHTML = "";
+        var xhttp = new XMLHttpRequest();
+        var count = 0;
+        points = [];
+        questionids = [];
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            if(JSON.parse(this.responseText).response == "200"){
+              myObjLength = JSON.parse(this.responseText).questions.length;
+              document.getElementById("displayexam").innerHTML = "";
+              length = myObjLength;
+              exam = JSON.parse(this.responseText).examname;
+                while(count < myObjLength){
+                  questionids.push(JSON.parse(this.responseText).questions[count].questionid);
+                  points.push(JSON.parse(this.responseText).questions[count].points);
+                  document.getElementById("displayexam").innerHTML += "<b style='margin: 0px 50px 0px;'>" + decodeURIComponent(JSON.parse(this.responseText).questions[count].question) + "</b> (" + JSON.parse(this.responseText).questions[count].points +" points)<br><textarea class='answer' cols='40' rows='5' style='resize:none;height:200px;width:50%;'></textarea><br><br>";
+                  count++;}
+                  document.getElementById("submitexam").style.visibility = "visible";
+            }
+            else{
+              document.getElementById("displayexam").innerHTML = "<b style='font-size:22px;'>You cannot take this exam again.</b>";
+              document.getElementById("submitexam").style.visibility = "hidden";}
+
+          }
+        };
+        xhttp.open("POST", "selectexamtocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("student="+student);
+      }
+      function submitExam(){
+        var xhttp = new XMLHttpRequest();
+        answers = "";
+        count=0;
+        while(count<length)
+        {
+          if(count == (length-1))
+            answers += document.getElementsByClassName("answer")[count].value;
+          else
+            answers += document.getElementsByClassName("answer")[count].value + "@";
+          count++;
+        }
+        document.getElementById("displayexam").innerHTML = "Successfully Submitted Exam.";
+        xhttp.open("POST", "submitexamtocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("examname="+exam+"&student="+student+"&questionids="+questionids+"&answers="+escape(encodeURIComponent(answers))+"&qpoints="+points);
+        
+      }
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/sgrades.html");
+        deleteCookie("username","/~tkp7/sgrades.html");
+        location.href = 'display.html';
+      }
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      var role=getCookie("role");
+      if (role == "s") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        student = getCookie("username");
+        var x = document.getElementsByTagName("BODY")[0];
+        x.style.visibility = "visible";
+      }
+    </script>
+	</body>
+</html>

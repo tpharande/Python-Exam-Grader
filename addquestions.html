@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Teacher</title>
+	</head>
+ <style>
+ body {
+  font-family: "Times New Roman";
+  font-size:16px;
+}
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: white;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border-right: 3px solid black;
+  background-color: #E73131;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight:bold;
+  color: black;
+  border:1px solid black;
+  display: inline-block;
+  width: 207.2px;
+  transition: 0.3s;
+  background-color: white;
+}
+
+.sidenav a:hover {
+  color:#E73131;
+  border: 1px solid #E73131;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+
+.button1 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 13px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:20%;
+  height: 35px;
+  font-weight:bold;
+}
+.button2 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 12px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:10%;
+  height: 25px;
+  font-weight:bold;
+}
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+
+</style>
+	<body style="margin:0;background-color:#E73131;visibility:hidden;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;
+      <div id="mySidenav" class="sidenav" style="padding-top:78px">
+        <a href="welcometeacher.html"><br>Home Page<br><br></a>
+        <a href="maketest.html"><br>Create Test<br><br></a>
+        <a href="tgrades.html"><br>Review Grades<br><br></a>
+        <a href="postgrades.html"><br>Post Grades<br><br></a>
+      </div>
+      <div id="main" style="display:inline;">
+        <span style="font-size:30px;cursor:pointer" onclick="Nav()">&#9776;</span>
+      </div>
+      <div style="display:inline;float:right;padding-top:13px;" >
+      <div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div> &emsp;
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()">&emsp;&ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br><br>
+    <div style="display:inline;overflow:auto;">
+      <table align="left" style="margin-left:30px;background-color:white;border:3px solid black;width:47%;">
+        <tr><th style="font-size:20px;"> <br> Create Questions <div id="bobby"></div></th></tr>
+        <tr>
+          <td style="text-align:center;"><br>
+            Topic: 
+            <input type="text" id="topic" style="width:12%;">&emsp;
+            Difficulty: 
+            <select id="difficulty">
+              <option value="easy">easy</option>
+              <option value="medium">medium</option>
+              <option value="hard">hard</option>
+            </select>&emsp;
+            Constraints: 
+            <select id="constraints">
+              <option value="none">none</option>
+              <option value="for">for</option>
+              <option value="while">while</option>
+              <option value="print">print</option>
+            </select> &emsp;
+            Test Cases: 
+            <select id="testcase" onclick="addTestCase()">
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select><br><br><br>
+            Enter Question:<br><br>
+            <textarea id="question" style="resize:none;height:200px;width:75%;"></textarea><br><br><br>
+            Function Name: <br><br>
+            <input type="text" id="functionname" style="height:25px;width:61%;"><br><br>
+            Test Case 1: <br><br>
+            <textarea id="case1" style="resize:none;height:100px;width:61%;"></textarea><br><br>
+            Test Case 2: <br><br>
+            <textarea id="case2" style="resize:none;height:100px;width:61%;"></textarea><br><br>
+            <div id="addTestCases"></div><br>
+            <div id="questionresponse"></div><br>
+            <button class="button1 button" onclick="createQuestion()">Create Question</button><br><br><br>
+          </td>
+        </tr>
+      </table>
+      <table align="right" style="margin-right:30px;background-color:white;border:3px solid black;width:47%;">
+        <tr><th style="font-size:20px;"> <br> Question Bank </th></tr>
+        <tr>
+          <td style="text-align:center;"><br>
+            Topic: 
+            <form id="myForm" style="display:inline">
+              <select id="selectNumber">
+              <option value="all">all</option>
+              </select>
+            </form>&emsp;
+            Difficulty: 
+            <select id="qbdifficulty">
+              <option value="all">all</option>
+              <option value="easy">easy</option>
+              <option value="medium">medium</option>
+              <option value="hard">hard</option>
+            </select>&emsp;
+            Keyword: 
+            <input type="text" id="qbkeyword" style="width:15%;">&emsp;
+            <button class="button2 button" onclick="getQuestion()">Filter</button><br><br><br>
+            <table id="displayquestions" align="center" style="width:90%;">
+            </table>
+            <br><br>
+          </td>
+        </tr>
+      </table>
+    </div>
+    
+    <script>
+    var check = 0;
+    function Nav() {
+      if (check == 0)
+      {document.getElementById("mySidenav").style.width = "250px";
+      document.getElementById("main").style.marginLeft = "250px";
+      check = 1;}
+      else
+      {document.getElementById("mySidenav").style.width = "0";
+      document.getElementById("main").style.marginLeft= "0";
+      check = 0;}
+    }
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          DDL(JSON.parse(this.responseText));
+        }
+      };
+      xhttp.open("POST", "querytocontroller.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("query=gettopics");
+      function DDL(options){
+        var select = document.getElementById("selectNumber"); 
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+      }}
+      function addTestCase(){
+        var dropdown = document.getElementById("testcase");
+        var value = dropdown.options[dropdown.selectedIndex].text;
+        if (value == 2)
+          document.getElementById("addTestCases").innerHTML = "";
+        else if (value == 3)
+          document.getElementById("addTestCases").innerHTML = "Test Case 3:<br><br><textarea id='case3[0]' style='resize:none;height:100px;width:61%;'></textarea><br><br>";
+        else{
+          document.getElementById("addTestCases").innerHTML = "Test Case 3:<br><br><textarea id='case3[1]' style='resize:none;height:100px;width:61%;'></textarea><br><br>";
+          document.getElementById("addTestCases").innerHTML += "Test Case 4:<br><br><textarea id='case4' style='resize:none;height:100px;width:61%;'></textarea><br><br>";
+        }
+      }
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      function createQuestion() {
+        var tcases = "";
+        var xhttp = new XMLHttpRequest();
+        var topic = document.getElementById("topic").value;
+        var dropdown = document.getElementById("difficulty");
+        var difficulty = dropdown.options[dropdown.selectedIndex].text;
+        var question = document.getElementById("question").value;
+        var fname = document.getElementById("functionname").value;
+        tcases+=document.getElementById("case1").value + "@";
+        tcases+=document.getElementById("case2").value + "@";
+        var vdropdown = document.getElementById("testcase");
+        var value = vdropdown.options[vdropdown.selectedIndex].text;
+        if (topic == "" || question == "" || fname == "" || document.getElementById("case1").value == "" || document.getElementById("case2").value == "") {
+        document.getElementById("questionresponse").innerHTML ="<b style='font-size:17px'>Please fill out ALL categories!</b>";
+        return false;
+        }
+        if (value == 3)
+        {
+          tcases+=document.getElementById("case3[0]").value + "@";
+          if (document.getElementById("case3[0]").value == "") {
+          document.getElementById("questionresponse").innerHTML ="<b style='font-size:17px'>Please fill out ALL categories!</b>";
+          return false;}
+        }
+        else if (value == 4)
+        {
+          tcases+=document.getElementById("case3[1]").value + "@";
+          tcases+=document.getElementById("case4").value + "@";
+          if (document.getElementById("case3[1]").value == "" || document.getElementById("case4").value == "") {
+          document.getElementById("questionresponse").innerHTML ="<b style='font-size:17px'>Please fill out ALL categories!</b>";
+          return false;}
+        }
+        var c = document.getElementById("constraints");
+        var constr = c.options[c.selectedIndex].text;
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            document.getElementById("questionresponse").innerHTML = JSON.parse(this.responseText).response;
+          }
+        };
+        xhttp.open("POST", "questiontocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("topic="+topic+"&difficulty="+difficulty+"&question="+escape(encodeURIComponent(question))+"&functionname="+fname+"&testcases="+escape(encodeURIComponent(tcases))+"&constr="+constr+"&tcnum=" + value);
+        document.getElementById("questionresponse").innerHTML = "Successfully Added Question!"
+        document.getElementById('functionname').value = '';
+        document.getElementById('case1').value = '';
+        document.getElementById('case2').value = '';
+        document.getElementById('topic').value = '';
+        document.getElementById('question').value = '';
+        if (value == 3)
+          document.getElementById("case3[0]").value = '';
+        else if (value == 4)
+        {
+          document.getElementById("case3[1]").value = '';
+          document.getElementById("case4").value = '';
+        }
+        setTimeout(location.reload(), 2000);
+      }
+      function getQuestion(){
+        document.getElementById("displayquestions").innerHTML = "";
+        var xhttp = new XMLHttpRequest();
+        var tdd = document.getElementById("selectNumber");
+        var topic = tdd.options[tdd.selectedIndex].textContent;
+        var dropdown = document.getElementById("qbdifficulty");
+        var difficulty = dropdown.options[dropdown.selectedIndex].text;
+        var keyword = document.getElementById("qbkeyword").value;
+        var count = 0;
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var myObjLength = JSON.parse(this.responseText).length;
+            document.getElementById("displayquestions").innerHTML += "<th>Questions</th><th>Constraint</th>";
+            while(count < myObjLength){
+              document.getElementById("displayquestions").innerHTML += "<tr><td style='border:1pt solid black;width:110%;'><br>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><br></td><td style='border:1pt solid black;'>" + JSON.parse(this.responseText)[count].const + "</td></tr>";
+              count++;
+              }
+          }
+        };
+        xhttp.open("POST", "questionbanktocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("qbtopic="+topic+"&qbdifficulty="+difficulty+"&qbkeyword="+keyword);
+      }
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/maketest.html");
+        deleteCookie("username","/~tkp7/maketest.html");
+        deleteCookie("role","/~tkp7/tgrades.html");
+        deleteCookie("username","/~tkp7/tgrades.html");
+        deleteCookie("role","/~tkp7/postgrades.html");
+        deleteCookie("username","/~tkp7/postgrades.html");
+        deleteCookie("role","/~tkp7/welcometeacher");
+        deleteCookie("username","/~tkp7/welcometeacher");
+        location.href = 'display.html';
+      }
+      var role=getCookie("role");
+      if (role == "t") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        var x = document.getElementsByTagName("BODY")[0];
+        x.style.visibility = "visible";
+      }  
+    </script>
+	</body>
+</html>

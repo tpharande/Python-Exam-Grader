@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Teacher</title>
+	</head>
+<style>
+.button {
+  background-color: #E73131;
+  border: none;
+  color: white;
+  padding: 16px 32px;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 30px;
+  margin: 4px 2px;
+  transition-duration: 0.5s;
+  cursor: pointer;
+  height: 150px;
+  width:70%;
+  font-weight:bold;
+}
+.button3 {
+  background-color: white; 
+  color: black; 
+  border: 3px solid black;
+}
+
+.button:hover {
+  color: #E73131;
+  border: 3px solid #E73131;
+}
+</style>
+	<body style="margin:0;background-color:#E73131;visibility:hidden;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;<div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div>
+      <div style="display:inline;float:right;">
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()">&emsp;&ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br>
+    <div style="display:inline">
+         <br>
+          <center>
+            <button style="margin:0px 55px 0px;" class="button button3" onclick="location.href = 'addquestions.html'">Add Questions</button><br><br>
+            <button style="margin:0px 55px 0px" class="button button3" onclick="location.href = 'maketest.html'">Create Test</button><br><br>
+            <button style="margin:0px 55px 0px" class="button button3" onclick="location.href = 'tgrades.html'">Review Grades</button><br><br>
+            <button style="margin:0px 55px 0px"class="button button3" onclick="location.href = 'postgrades.html'">Post Grades</button><br>
+          </center>
+          <br><br><td>
+    </div>
+    <script>
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/tgrades.html");
+        deleteCookie("username","/~tkp7/tgrades.html");
+        deleteCookie("role","/~tkp7/maketest.html");
+        deleteCookie("username","/~tkp7/maketest.html");
+        deleteCookie("role","/~tkp7/addquestions.html");
+        deleteCookie("username","/~tkp7/addquestions.html");
+        deleteCookie("role","/~tkp7/postgrades.html");
+        deleteCookie("username","/~tkp7/postgrades.html");
+        location.href = 'display.html';
+      }
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      var role=getCookie("role");
+      if (role == "t") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        var x = document.getElementsByTagName("BODY")[0];
+        x.style.visibility = "visible";
+      }  
+    </script>
+	</body>
+</html>

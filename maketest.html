@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Teacher</title>
+	</head>
+ <style>
+ body {
+  font-family: "Times New Roman";
+  font-size:16px;
+}
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: white;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border-right: 3px solid black;
+  background-color: #E73131;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight:bold;
+  color: black;
+  border:1px solid black;
+  display: inline-block;
+  width: 207.2px;
+  transition: 0.3s;
+  background-color: white;
+}
+
+.sidenav a:hover {
+  color:#E73131;
+  border: 1px solid #E73131;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+.button1 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 13px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:16%;
+  height: 35px;
+  font-weight:bold;
+}
+.button2 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 12px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:10%;
+  height: 22px;
+  font-weight:bold;
+}
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+ </style>
+	<body style="margin:0;background-color:#E73131;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;
+    <div id="mySidenav" class="sidenav" style="padding-top:78px">
+        <a href="welcometeacher.html"><br>Home Page<br><br></a>
+        <a href="addquestions.html"><br>Add Questions<br><br></a>
+        <a href="tgrades.html"><br>Review Grades<br><br></a>
+        <a href="postgrades.html"><br>Post Grades<br><br></a>
+      </div>
+      <div id="main" style="display:inline;">
+        <span style="font-size:30px;cursor:pointer" onclick="Nav()">&#9776;</span>
+      </div>
+      <div style="display:inline;float:right;padding-top:13px;" >
+      <div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div> &emsp;
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()">&emsp;&ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br><br>
+    <div style="display:inline;overflow:auto;">
+      <table align="left" style="margin-left:30px;background-color:white;border:3px solid black;width:47%;">
+        <tr><th style="font-size:20px;"> <br> Create Test </th></tr>
+        <tr>
+          <td style="text-align:center;"><br>
+            Exam Name: &nbsp;
+            <input type="text" id="examname"><br><br><br>
+            <table id="insertquestions" align="center" style="width:75%;visibility:hidden;">
+            <th>Question</th><th>Points</th>
+            </table><br>
+            <button id="ctest" class="button1 button" onclick="createTest()" style="visibility:hidden;">Create Test</button><br><br>
+          </td>
+        </tr>
+      </table>
+      <table align="right" style="margin-right:30px;background-color:white;border:3px solid black;width:47%;">
+        <tr><th style="font-size:20px;"> <br> Question Bank </th></tr>
+        <tr>
+          <td style="text-align:center;"><br>
+            Topic: 
+            <form id="myForm" style="display:inline">
+              <select id="selectNumber">
+                <option value="all">all</option>
+              </select>
+            </form>&emsp;
+            Difficulty: 
+            <select id="qbdifficulty">
+              <option value="all">all</option>
+              <option value="easy">easy</option>
+              <option value="medium">medium</option>
+              <option value="hard">hard</option>
+            </select>&emsp;
+            Keyword: 
+            <input type="text" id="qbkeyword" style="width:15%;">&emsp;
+            <button class="button2 button" onclick="getQuestion()">Filter</button><br><br><br>
+            <table id="displayquestions" align="center" style="width:85%;">
+              
+            </table><br>
+            <button id="submitit" class="button1 button" onclick="submitQuestions()" style="visibility:hidden;">Add Question</button><br><br><br>
+          </td>
+        </tr>
+      </table>
+    </div>
+    
+    <script>
+      var check = 0;
+      function Nav() {
+        if (check == 0)
+        {document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        check = 1;}
+        else
+        {document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.marginLeft= "0";
+        check = 0;}
+      }
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          DDL(JSON.parse(this.responseText));
+        }
+      };
+      xhttp.open("POST", "querytocontroller.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("query=gettopics");
+      function DDL(options){
+        var select = document.getElementById("selectNumber"); 
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+      }}
+      var length = 0;
+      var duplicate = [];
+      var questionids = [];
+      var points = [];
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      function getQuestion(){
+        document.getElementById("submitit").style.visibility = "visible";
+        questionids = [];
+        document.getElementById("displayquestions").innerHTML = "";
+        var xhttp = new XMLHttpRequest();
+        var tdd = document.getElementById("selectNumber");
+        var topic = tdd.options[tdd.selectedIndex].textContent;
+        var dropdown = document.getElementById("qbdifficulty");
+        var difficulty = dropdown.options[dropdown.selectedIndex].text;
+        var keyword = document.getElementById("qbkeyword").value;
+        var count = 0;
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var myObjLength = JSON.parse(this.responseText).length;
+            length = myObjLength;
+            document.getElementById("displayquestions").innerHTML += "<th></th><th>Questions</th><th>Constraint</th>";
+            while(count < myObjLength){
+              document.getElementById("displayquestions").innerHTML += "<tr><td><input type='radio' name='question' class='check'></td><td style='border:1pt solid black;'><br>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><br></td><td style='border:1pt solid black;'>" + JSON.parse(this.responseText)[count].const + "</td></tr>";
+              questionids.push(JSON.parse(this.responseText)[count].questionID);
+              count++;
+              }
+          }
+        };
+        xhttp.open("POST", "questionbanktocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("qbtopic="+topic+"&qbdifficulty="+difficulty+"&qbkeyword="+keyword);
+      }
+      function submitQuestions()
+      {
+          document.getElementById("ctest").style.visibility = "visible";
+          document.getElementById("insertquestions").style.visibility = "visible";
+          var looping = 0;
+          while(looping < length){
+              if(document.getElementsByClassName("check")[looping].checked == true){
+                document.getElementById("insertquestions").innerHTML += "<tr><td>" + document.getElementById("displayquestions").rows[looping+1].cells[1].innerHTML + "</td><td><input type='text' class='exam' style='width:45%;height:20px;'></td></tr>";
+                duplicate.push(questionids[looping]);}
+                looping++;}
+      }
+      function createTest(){
+        looping = 0;
+        points = [];
+        var xhttp = new XMLHttpRequest();
+        var exam = document.getElementById("examname").value;
+        while (looping < duplicate.length)
+        {
+          points.push(document.getElementsByClassName("exam")[looping].value);
+          looping++;
+        }
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            myObj = JSON.parse(this.responseText).response;
+            if(myObj == '1')
+              document.getElementById("insertquestions").innerHTML = "Successfully Added Test";
+            else
+              document.getElementById("insertquestions").innerHTML = "Failed to Add Test";
+          }
+        };
+        
+        xhttp.open("POST", "testtocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("examname="+exam+"&questions="+duplicate+"&points="+points);
+        
+        
+        document.getElementById("examname").value = "";
+      }
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/tgrades.html");
+        deleteCookie("username","/~tkp7/tgrades.html");
+        deleteCookie("role","/~tkp7/addquestions.html");
+        deleteCookie("username","/~tkp7/addquestions.html");
+        deleteCookie("role","/~tkp7/postgrades.html");
+        deleteCookie("username","/~tkp7/postgrades.html");
+        deleteCookie("role","/~tkp7/welcometeacher");
+        deleteCookie("username","/~tkp7/welcometeacher");
+        location.href = 'display.html';
+      }
+      var role=getCookie("role");
+      if (role == "t") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        var x = document.getElementsByTagName("BODY")[0];
+        x.style.visibility = "visible";
+      }  
+    </script>
+	</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Teacher</title>
+	</head>
+<style>
+body {
+  font-family: "Times New Roman";
+  font-size:16px;
+}
+.grade table, .grade th, .grade td {
+  border: 1px solid black;
+  text-align:center;
+  table-layout:fixed;
+  width:25%;
+}
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: white;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  border-right: 3px solid black;
+  background-color: #E73131;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight:bold;
+  color: black;
+  border:1px solid black;
+  display: inline-block;
+  width: 207.2px;
+  transition: 0.3s;
+  background-color: white;
+}
+
+.sidenav a:hover {
+  color:#E73131;
+  border: 1px solid #E73131;
+}
+
+#main {
+  transition: margin-left .5s;
+  padding: 16px;
+}
+.button1 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 13px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:9%;
+  height: 22px;
+  font-weight:bold;
+}
+
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+</style>
+	<body style="margin:0;background-color:#E73131;visibility:hidden;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;
+    <div id="mySidenav" class="sidenav" style="padding-top:78px">
+        <a href="welcometeacher.html"><br>Home Page<br><br></a>
+        <a href="addquestions.html"><br>Add Questions<br><br></a>
+        <a href="maketest.html"><br>Create Test<br><br></a>
+        <a href="tgrades.html"><br>Review Grades<br><br></a>
+      </div>
+      <div id="main" style="display:inline;">
+        <span style="font-size:30px;cursor:pointer" onclick="Nav()">&#9776;</span>
+      </div>
+      <div style="display:inline;float:right;padding-top:13px;" >
+      <div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div> &emsp;
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()">&emsp;&ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br><br>
+    <div style="display:inline">
+      <table align="center" style="background-color:white;border:3px solid black;width:75%;overflow:auto;">
+        <tr><th style="font-size:20px;"> <br> Select Exam to Post </th></tr>
+        <tr>
+          <td style="text-align:center;"><br>
+            Exam Name: &nbsp;
+            <select id="exam">
+            </select> &emsp;&ensp;
+            <button class="button1 button" onclick="getGrades()">Post Grades</button><br><br>
+            <div id="display"></div><br><br>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <script>
+      var check = 0;
+      function Nav() {
+        if (check == 0)
+        {document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        check = 1;}
+        else
+        {document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("main").style.marginLeft= "0";
+        check = 0;}
+      }
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          DDL(JSON.parse(this.responseText));
+        }
+      };
+      xhttp.open("POST", "querytocontroller.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("query=getnotposted");
+      function DDL(options){
+        var select = document.getElementById("exam"); 
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+      }}
+
+      function getGrades()
+      {  
+          var xhttp = new XMLHttpRequest();
+          var edd = document.getElementById("exam");
+          var examname = edd.options[edd.selectedIndex].textContent;
+          exam = examname;
+          document.getElementById("display").innerHTML = "Successfully Posted Exam.";
+          xhttp.open("POST", "postgradestocontroller.php", true);
+          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          xhttp.send("examname="+examname);
+      }
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/maketest.html");
+        deleteCookie("username","/~tkp7/maketest.html");
+        deleteCookie("role","/~tkp7/addquestions.html");
+        deleteCookie("username","/~tkp7/addquestions.html");
+        deleteCookie("role","/~tkp7/tgrades.html");
+        deleteCookie("username","/~tkp7/tgrades.html");
+        deleteCookie("role","/~tkp7/welcometeacher.html");
+        deleteCookie("username","/~tkp7/welcometeacher.html");
+        location.href = 'display.html';
+      }
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      var role=getCookie("role");
+      if (role == "t") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        var x = document.getElementsByTagName("BODY")[0];
+        student = getCookie("username");
+        x.style.visibility = "visible";
+      }  
+    </script>
+	</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Student</title>
+	</head>
+ <style>
+  body {
+  font-family: "Times New Roman";
+  font-size:16px;
+}
+ table, th, td {
+  border: 1px solid black;
+  text-align:center;
+  table-layout:fixed;
+  width:65%;
+}
+.button1 {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:Georgia, serif;
+  font-size: 13px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:7%;
+  height: 22px;
+  font-weight:bold;
+}
+
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+</style>
+	<body style="margin:0;background-color:#E73131;visibility:hidden;">
+    <div id="banner" style="background-color:white;">
+    <br>
+    &emsp;
+      <input type="submit" value="Take Exam" style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="location.href = 'taketest.html';"> &ensp;
+      <input type="submit" value="Home Page" style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="location.href = 'welcomestudent.html';">
+      <div style="display:inline;float:right;">
+      <div id="welcome" style="display:inline;font-weight:bold;font-size:18px;"></div>&emsp;
+      <input type="submit" value=" Logout " style="background-color:transparent;border:none;font-weight:bold;font-size:15px;font-family:Georgia" onclick="logout()">&emsp; &ensp;
+    </div>
+    <br><br>
+    </div>
+    <div id="banner" style="border-top:3px solid black;"></div><br><br><br>
+    <center>
+    <div style="background-color:white;border:3px solid black;width:90%;">
+      <br>
+      Select Exam: 
+      <select id="selectNumber">
+      </select> &emsp;
+      <button class="button1 button" onclick="submitExam()">Get Grades</button><br><br><br>
+      <div id="displaygrades"></div>
+    </div>
+    </center>
+    <script>
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          DDL(JSON.parse(this.responseText));
+        }
+      };
+      xhttp.open("POST", "querytocontroller.php", true);
+      xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhttp.send("query=getposted");
+      function DDL(options){
+        var select = document.getElementById("selectNumber"); 
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+      }}
+      var student = "";
+      var length = 0;
+      function submitExam()
+      {
+        var givenpoints = 0;
+        var totalpoints = 0;
+        document.getElementById("displaygrades").innerHTML = "";
+        var xhttp = new XMLHttpRequest();
+        var edd = document.getElementById("selectNumber");
+        var examname = edd.options[edd.selectedIndex].textContent;
+        var count = 0;
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            myObjLength = JSON.parse(this.responseText).length;
+            length = myObjLength;
+            document.getElementById("displaygrades").innerHTML += "<b style='font-size:25px;'>Total Grade: <div id='tgrade' style='display:inline;'></div>% (<div id='gpoints' style='display:inline;'></div>/<div id='tpoints' style='display:inline;'></div>)</b><br><br>";
+            while(count < myObjLength){
+              var ans = decodeURIComponent((JSON.parse(this.responseText)[count].answer).split('+').join("%20"));
+              if (JSON.parse(this.responseText)[count].const == "none")
+               { if(JSON.parse(this.responseText)[count].testcasenum == '2')
+                  {
+                  document.getElementById("displaygrades").innerHTML += "<div style='margin: 0px 100px 0px'><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): &nbsp;</b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Your Answer: &nbsp;</b>" + ans + "</div><br><table id='displaygrades'><th>Category</th><th>Autograde Results</th><th>Teacher Grade</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td>"+JSON.parse(this.responseText)[count].functionnamec+"</td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td>"+JSON.parse(this.responseText)[count].colonC+"</td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td>"+JSON.parse(this.responseText)[count].test1c+"</td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td>"+JSON.parse(this.responseText)[count].test2c+"</td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td><td>"+JSON.parse(this.responseText)[count].teachergrade+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td></tr></table><br><div style='font-size:20px'><b>Comments: </b>"+decodeURIComponent(JSON.parse(this.responseText)[count].comment.split('+').join("%20"))+"</div><br><hr><br>";}
+                  else if (JSON.parse(this.responseText)[count].testcasenum == '3')
+                  {
+                    document.getElementById("displaygrades").innerHTML += "<div style='margin: 0px 100px 0px'><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): &nbsp;</b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question)+ "<br><b>Your Answer: &nbsp;</b>" + ans + "</div><br><table id='displaygrades'><th>Category</th><th>Autograde Results</th><th>Teacher Grade</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td>"+JSON.parse(this.responseText)[count].functionnamec+"</td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td>"+JSON.parse(this.responseText)[count].colonC+"</td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td>"+JSON.parse(this.responseText)[count].test1c+"</td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td>"+JSON.parse(this.responseText)[count].test2c+"</td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td>"+JSON.parse(this.responseText)[count].test3c+"</td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td><td>"+JSON.parse(this.responseText)[count].teachergrade+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td></tr></table><br><div style='font-size:20px'><b>Comments: </b>"+decodeURIComponent(JSON.parse(this.responseText)[count].comment.split('+').join("%20"))+"</div><br><hr><br>";
+                  }
+                  else
+                  {
+                    document.getElementById("displaygrades").innerHTML += "<div style='margin: 0px 100px 0px'><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): &nbsp;</b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Your Answer: &nbsp;</b>" + ans + "</div><br><table id='displaygrades'><th>Category</th><th>Autograde Results</th><th>Teacher Grade</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td>"+JSON.parse(this.responseText)[count].functionnamec+"</td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td>"+JSON.parse(this.responseText)[count].colonC+"</td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td>"+JSON.parse(this.responseText)[count].test1c+"</td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td>"+JSON.parse(this.responseText)[count].test2c+"</td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td>"+JSON.parse(this.responseText)[count].test3c+"</td></tr><tr><td> Test Case 4: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test4q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test4a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test4sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test4score+"</td><td>"+JSON.parse(this.responseText)[count].test4c+"</td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td><td>"+JSON.parse(this.responseText)[count].teachergrade+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td></tr></table><br><div style='font-size:20px'><b>Comments: </b>"+decodeURIComponent(JSON.parse(this.responseText)[count].comment.split('+').join("%20"))+"</div><br><hr><br>";
+                  }}
+               else
+               {
+                 if(JSON.parse(this.responseText)[count].testcasenum == '2')
+                  {
+                  document.getElementById("displaygrades").innerHTML += "<div style='margin: 0px 100px 0px'><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): &nbsp;</b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Your Answer: &nbsp;</b>" + ans + "<br></div><br><table id='displaygrades'><th>Category</th><th>Autograde Results</th><th>Teacher Grade</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td>"+JSON.parse(this.responseText)[count].functionnamec+"</td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td>"+JSON.parse(this.responseText)[count].colonC+"</td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td>"+JSON.parse(this.responseText)[count].test1c+"</td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td>"+JSON.parse(this.responseText)[count].test2c+"</td></tr><tr><td><br>Constraint (<b>" + JSON.parse(this.responseText)[count].const + "</b>)<br><br></td> <td>"+JSON.parse(this.responseText)[count].constraintscore+"</td><td>"+JSON.parse(this.responseText)[count].constraintC+"</td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td><td>"+JSON.parse(this.responseText)[count].teachergrade+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td></tr></table><br><div style='font-size:20px'><b>Comments: </b>"+decodeURIComponent(JSON.parse(this.responseText)[count].comment.split('+').join("%20"))+"</div><br><hr><br>";}
+                  else if (JSON.parse(this.responseText)[count].testcasenum == '3')
+                  {
+                    document.getElementById("displaygrades").innerHTML += "<div style='margin: 0px 100px 0px'><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): &nbsp;</b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Your Answer: &nbsp;</b>" + ans + "<br></div><br><table id='displaygrades'><th>Category</th><th>Autograde Results</th><th>Teacher Grade</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td>"+JSON.parse(this.responseText)[count].functionnamec+"</td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td>"+JSON.parse(this.responseText)[count].colonC+"</td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td>"+JSON.parse(this.responseText)[count].test1c+"</td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td>"+JSON.parse(this.responseText)[count].test2c+"</td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td>"+JSON.parse(this.responseText)[count].test3c+"</td></tr><tr><td><br>Constraint (<b>" + JSON.parse(this.responseText)[count].const + "</b>)<br><br></td> <td>"+JSON.parse(this.responseText)[count].constraintscore+"</td><td>"+JSON.parse(this.responseText)[count].constraintC+"</td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td><td>"+JSON.parse(this.responseText)[count].teachergrade+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td></tr></table><br><div style='font-size:20px'><b>Comments: </b>"+decodeURIComponent(JSON.parse(this.responseText)[count].comment.split('+').join("%20"))+"</div><br><hr><br>";
+                  }
+                  else
+                  {
+                    document.getElementById("displaygrades").innerHTML += "<div style='margin: 0px 100px 0px'><b>Question ("+ JSON.parse(this.responseText)[count].questionpoints +" points): &nbsp;</b>" + decodeURIComponent(JSON.parse(this.responseText)[count].question) + "<br><b>Your Answer: &nbsp;</b>" + ans + "<br></div><br><table id='displaygrades'><th>Category</th><th>Autograde Results</th><th>Teacher Grade</th><tr><td><br>Function Name<br><br></td> <td>"+JSON.parse(this.responseText)[count].functionnamescore+"</td><td>"+JSON.parse(this.responseText)[count].functionnamec+"</td></tr><tr><td><br>Colon<br><br></td> <td>"+JSON.parse(this.responseText)[count].colonscore+"</td><td>"+JSON.parse(this.responseText)[count].colonC+"</td></tr><tr><td> Test Case 1: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test1q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test1a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test1sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test1score+"</td><td>"+JSON.parse(this.responseText)[count].test1c+"</td></tr><tr><td> Test Case 2: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test2q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test2a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test2sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test2score+"</td><td>"+JSON.parse(this.responseText)[count].test2c+"</td></tr><tr><td> Test Case 3: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test3q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test3a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test3sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test3score+"</td><td>"+JSON.parse(this.responseText)[count].test3c+"</td></tr><tr><td> Test Case 4: <b>"+decodeURIComponent((JSON.parse(this.responseText)[count].test4q).split('+').join("%20"))+"</b><br> Expected Result: <b>"+JSON.parse(this.responseText)[count].test4a+"</b><br>Student Result: <b>"+JSON.parse(this.responseText)[count].test4sa+"</b></td><td>"+JSON.parse(this.responseText)[count].test4score+"</td><td>"+JSON.parse(this.responseText)[count].test4c+"</td></tr><tr><td><br>Constraint (<b>" + JSON.parse(this.responseText)[count].const + "</b>)<br><br></td> <td>"+JSON.parse(this.responseText)[count].constraintscore+"</td><td>"+JSON.parse(this.responseText)[count].constraintC+"</td></tr><tr><td><br>Total<br><br></td><td>"+JSON.parse(this.responseText)[count].autograde+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td><td>"+JSON.parse(this.responseText)[count].teachergrade+"/"+JSON.parse(this.responseText)[count].questionpoints+"</td></tr></table><br><div style='font-size:20px'><b>Comments: </b>"+decodeURIComponent(JSON.parse(this.responseText)[count].comment.split('+').join("%20"))+"</div><br><hr><br>";
+                  }
+               }
+              totalpoints+=parseInt(JSON.parse(this.responseText)[count].questionpoints);
+              givenpoints+=parseInt(JSON.parse(this.responseText)[count].teachergrade);
+              count++;}
+              if(totalpoints == 0)
+                document.getElementById("displaygrades").innerHTML = "<b style='font-size:25px;'>Grades are not available at this time.</b><br><br><br><br>";
+              else{
+              document.getElementById("tgrade").innerHTML = parseInt(givenpoints/totalpoints*100);
+              document.getElementById("tpoints").innerHTML = parseInt(totalpoints);
+              document.getElementById("gpoints").innerHTML = parseInt(givenpoints);}
+          }
+        };
+        xhttp.open("POST", "sgradestocontroller.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.send("user="+student+"&examname="+examname);
+      }
+      function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+      function logout(){
+        deleteCookie("role","");
+        deleteCookie("username","");
+        deleteCookie("role","/~tkp7/taketest.html");
+        deleteCookie("username","/~tkp7/taketest.html");
+        location.href = 'display.html';
+      }
+      function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+          }
+          if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+          }
+        }
+        return "";
+      }
+      var role=getCookie("role");
+      if (role == "s") {
+        document.getElementById("welcome").innerHTML = "Welcome " + getCookie("username").toUpperCase() + "!";
+        student = getCookie("username");
+        var x = document.getElementsByTagName("BODY")[0];
+        x.style.visibility = "visible";
+      }  
+    </script>
+	</body>
+</html>

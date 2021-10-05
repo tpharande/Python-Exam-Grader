@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Login</title>
+	</head>
+ <style>
+ body {
+  font-family: "Georgia";
+  font-size:17px;
+}
+ .button {
+  background-color: white;
+  border: 2px solid black;
+  text-align: center;
+  text-decoration: none;
+  font-family:"Times New Roman";
+  font-size: 15px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  width:25%;
+  height: 27px;
+  font-weight:bold;
+}
+.button:hover {
+  color: black;
+  border: 2px solid #E73131;
+}
+ </style>
+	<body style="background-color:#E73131;margin:0;top:50%; left:50%;transform:translate(-50%,-50%);position:absolute;padding-bottom:50px;">
+    <br><br><br>
+    <center>
+        <div style=" width: 85%; border:2px solid black; padding: 40px 14px 50px 15px; text-align:center; background-color:white">
+          <img style="width: 40%; padding:20px 0px 20px 0px; " src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Logo_of_New_Jersey_Institute_of_Technology.png"><br>
+          <label for="username">User ID:</label><br>
+          <input type="text" id="username" name="username" style="border:1px solid black"><br><br>
+          <label for="password">Password:</label><br>
+          <input type="password" id="password" name="password" style="border:1px solid black"><br><br>
+          <button class="button" onclick="loadpage()">Login</button><br><br><br>
+          <div id="error" style="font-weight:bold;font-size:17px"></div>
+        </div>
+    </center>
+    <p id="demo"></p>
+    <script>
+        function setCookie(cname,cvalue,cpath) {
+          var d = new Date();
+          d.setTime(d.getTime() + (55*60000));
+          var expires = d.toGMTString();
+          document.cookie = cname+"="+cvalue+";expires="+expires+";path="+cpath;
+        }
+        function deleteCookie(cname,cpath){
+          document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path="+cpath+";";
+        }
+        function loadpage() {
+          var xhttp = new XMLHttpRequest();
+          var user = document.getElementById("username").value;
+          var pass = document.getElementById("password").value;
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              myObj = JSON.parse(this.responseText);
+              var value = myObj.role;
+              if (value == 't'){
+                setCookie("role",value,"/~tkp7/welcometeacher.html");
+                setCookie("username",user,"/~tkp7/welcometeacher.html");
+                setCookie("role",value,"/~tkp7/addquestions.html");
+                setCookie("username",user,"/~tkp7/addquestions.html");
+                setCookie("role",value,"/~tkp7/maketest.html");
+                setCookie("username",user,"/~tkp7/maketest.html");
+                setCookie("role",value,"/~tkp7/postgrades.html");
+                setCookie("username",user,"/~tkp7/postgrades.html");
+                setCookie("role",value,"/~tkp7/tgrades.html");
+                setCookie("username",user,"/~tkp7/tgrades.html");
+                deleteCookie("role","/~tkp7/taketest.html");
+                deleteCookie("username","/~tkp7/taketest.html");
+                deleteCookie("role","/~tkp7/sgrades.html");
+                deleteCookie("username","/~tkp7/sgrades.html");
+                deleteCookie("role","/~tkp7/welcomestudent.html");
+                deleteCookie("username","/~tkp7/welcomestudent.html");
+                location.href='welcometeacher.html';
+              }
+              else if (value == 's'){
+                setCookie("role",value,"/~tkp7/welcomestudent.html");
+                setCookie("username",user,"/~tkp7/welcomestudent.html");
+                setCookie("role",value,"/~tkp7/taketest.html");
+                setCookie("username",user,"/~tkp7/taketest.html");
+                setCookie("role",value,"/~tkp7/sgrades.html");
+                setCookie("username",user,"/~tkp7/sgrades.html");
+                deleteCookie("role","/~tkp7/addquestions.html");
+                deleteCookie("username","/~tkp7/addquestions.html");
+                deleteCookie("role","/~tkp7/maketest.html");
+                deleteCookie("username","/~tkp7/maketest.html");
+                deleteCookie("role","/~tkp7/tgrades.html");
+                deleteCookie("username","/~tkp7/tgrades.html");
+                deleteCookie("role","/~tkp7/postgrades.html");
+                deleteCookie("username","/~tkp7/postgrades.html");
+                deleteCookie("role","/~tkp7/welcometeacher.html");
+                deleteCookie("username","/~tkp7/welcometeacher.html");
+                location.href='welcomestudent.html';}
+              else
+                document.getElementById("error").innerHTML = " INVALID LOGIN! ";
+            }
+          };
+          xhttp.open("POST", "viewtocontroller.php", true);
+          xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+          xhttp.send("username="+user+"&password="+pass);
+        }
+    </script>
+	</body>
+</html>
